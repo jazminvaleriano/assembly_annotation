@@ -12,40 +12,19 @@
 
 # Directories for the input and output files
 OUTDIR='/data/users/jvaleriano/assembly_course/asm_evaluation/BUSCO'
+FLYE_ASM='/data/users/jvaleriano/assembly_course/assemblies/flye/flye_assembly.fasta'
+HIFI_ASM='/data/users/jvaleriano/assembly_course/assemblies/hifiasm/hifiasm.fa'
+LJA_ASM='/data/users/jvaleriano/assembly_course/assemblies/lja/lja_assembly.fasta'
+TRANSCRIPTOME='/data/users/jvaleriano/assembly_course/assemblies/trinity.Trinity.fasta'
 
 mkdir -p $OUTDIR
 cd $OUTDIR
 
+module load BUSCO/5.4.2-foss-2021a
+
 # Run BUSCO for each genome assembly and the transcriptome
-apptainer exec --bind /data /containers/apptainer/busco_5.7.1.sif \
-bash -c '
-  # Run BUSCO for flye assembly
-  busco -i /data/users/jvaleriano/assembly_course/assemblies/flye/flye_assembly.fasta \
-        --auto-lineage \
-        -o flye_busco \
-        -m genome \
-        --cpu 16 \
-        -f
 
-  # Run BUSCO for hifiasm assembly
-  busco -i /data/users/jvaleriano/assembly_course/assemblies/hifiasm/hifiasm.fa \
-        --auto-lineage \
-        -o hifiasm_busco \
-        -m genome \
-        --cpu 16 \
-        -f
-
-  # Run BUSCO for lja assembly
-  busco -i /data/users/jvaleriano/assembly_course/assemblies/lja/lja_assembly.fasta \
-        --auto-lineage \
-        -o lja_busco \
-        -m genome \
-        --cpu 16
-
-  # Run BUSCO for transcriptome assembly
-  busco -i /data/users/jvaleriano/assembly_course/assemblies/trinity.Trinity.fasta \
-        --auto-lineage \
-        -o transcriptome_busco \
-        -m transcriptome \
-        --cpu 16
-'
+busco -i $FLYE_ASM --auto-lineage -o flye_busco -m genome --cpu 16 
+busco -i $HIFI_ASM --auto-lineage -o hifiasm_busco -m genome --cpu 16 -f
+busco -i $LJA_ASM --auto-lineage -o lja_busco -m genome --cpu 16 
+busco -i $TRANSCRIPTOME --auto-lineage -o transc_busco -m transcriptome --cpu 16
