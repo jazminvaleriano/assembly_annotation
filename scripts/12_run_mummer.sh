@@ -11,7 +11,7 @@
 #SBATCH --error=./error/%x_%j.err     # %x is the job name, %j is the job ID
 
 # Directories for the input and output files
-OUTDIR='/data/users/jvaleriano/assembly_course/asm_evaluation/nucmeer_comparison'
+OUTDIR='/data/users/jvaleriano/assembly_course/asm_evaluation/nucmer_comparison_2'
 ASM_FLYE='/data/users/jvaleriano/assembly_course/assemblies/flye/flye_assembly.fasta'
 ASM_HIFIASM='/data/users/jvaleriano/assembly_course/assemblies/hifiasm/hifiasm.fa'
 ASM_LJA='/data/users/jvaleriano/assembly_course/assemblies/lja/lja_assembly.fasta'
@@ -23,15 +23,15 @@ mkdir -p $OUTDIR
 
 # Run nucmer for Flye assembly
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
-nucmer --prefix=$OUTDIR/flye_vs_ref --breaklen 1000 --mincluster 1000 $REF_GENOME $ASM_FLYE
+nucmer --prefix=$OUTDIR/flye_vs_ref --breaklen 2000 --mincluster 3000 $REF_GENOME $ASM_FLYE
 
 # Run nucmer for Hifiasm assembly
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
-nucmer --prefix=$OUTDIR/hifiasm_vs_ref --breaklen 1000 --mincluster 1000 $REF_GENOME $ASM_HIFIASM
+nucmer --prefix=$OUTDIR/hifiasm_vs_ref --breaklen 2000 --mincluster 3000 $REF_GENOME $ASM_HIFIASM
 
 # Run nucmer for LJA assembly
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
-nucmer --prefix=$OUTDIR/lja_vs_ref --breaklen 1000 --mincluster 1000 $REF_GENOME $ASM_LJA
+nucmer --prefix=$OUTDIR/lja_vs_ref --breaklen 2000 --mincluster 3000 $REF_GENOME $ASM_LJA
 
 # Generate dotplot for Flye assembly
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
@@ -48,15 +48,15 @@ mummerplot --png --layout --prefix=$OUTDIR/lja_vs_ref --filter $OUTDIR/lja_vs_re
 # Compare Flye, Hifiasm, and LJA assemblies with each other
 # Flye vs Hifiasm
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
-nucmer --prefix=$OUTDIR/flye_vs_hifiasm --breaklen 1000 --mincluster 1000 $ASM_FLYE $ASM_HIFIASM
+nucmer --prefix=$OUTDIR/flye_vs_hifiasm --breaklen 2000 --mincluster 3000 $ASM_FLYE $ASM_HIFIASM
 
 # Flye vs LJA
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
-nucmer --prefix=$OUTDIR/flye_vs_lja --breaklen 1000 --mincluster 1000 $ASM_FLYE $ASM_LJA
+nucmer --prefix=$OUTDIR/flye_vs_lja --breaklen 2000 --mincluster 3000 $ASM_FLYE $ASM_LJA
 
 # Hifiasm vs LJA
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
-nucmer --prefix=$OUTDIR/hifiasm_vs_lja --breaklen 1000 --mincluster 1000 $ASM_HIFIASM $ASM_LJA
+nucmer --prefix=$OUTDIR/hifiasm_vs_lja --breaklen 2000 --mincluster 3000 $ASM_HIFIASM $ASM_LJA
 
 # Generate dotplot for Flye vs Hifiasm
 apptainer exec --bind /data /containers/apptainer/mummer4_gnuplot.sif \
