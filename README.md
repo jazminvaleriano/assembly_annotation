@@ -15,11 +15,15 @@ The analysis pipeline consists of the follwing steps:
 1. **Preparation and Quality Control of Input Data**
 2. **Genome Assembly**
 3. **Assembly Evaluation**
-4. **Repetitive Element Annotation**
-5. **Gene Annotation**
-6. **Comparative Genomics and Final Summary**
+4. **Repetitive Element (Transposable Elements) Annotation and Classification**
+5. **Phylogenetic Analysis of TEs**
+6. **Gene Annotation**
+7. **Comparative Genomics**
 
 ---
+All .sh scripts were executed on the IBU cluster using the SLURM workload manager (sbatch). 
+
+R scripts were executed locally. 
 
 ### Step 1: Preparation and Quality Control of Input Data
 
@@ -64,7 +68,7 @@ The analysis pipeline consists of the follwing steps:
     ```bash
     ./06_assembly_LJA.sh
     ```
-  - Trinity (if RNA assembly is required):
+  - Trinity (for RNA assembly):
     ```bash
     ./07_assembly_trinity.sh
     ```
@@ -73,78 +77,106 @@ The analysis pipeline consists of the follwing steps:
 
 ### Step 3: Assembly Evaluation
 
-- Assess assembly quality using BUSCO:
+- Assess assembly single-copy ortholog completeness using BUSCO:
   ```bash
   ./08_evaluate_asm_BUSCO.sh
-  ./08_v2_evaluate_asm_BUSCO.sh
   ```
 
-- Evaluate assemblies against the reference genome using QUAST:
+- Calculate key assembly metrics using QUAST (with and without reference genome):
   ```bash
-  ./09a_evaluate_asm_ref_QUAST.sh
+  ./09a_evaluate_asm_nref_QUAST.sh
   ./09b_evaluate_asm_ref_QUAST.sh
   ```
-
+- Evaluate the consensus quality value (QV) and validate k-mer spectrum completeness using Merqury:
+    ```bash
+  ./10_prepare_meryl_db.sh  
+  ./11a_merqury_flye.sh #Run for each assembly
+  ```
+- Create dotplots to compare assemblies to reference and to each other:
+  ```bash
+  .12_run_mummer.sh  
+  ```
 ---
 
 ### Step 4: Repetitive Element Annotation
 
 - Use EDTA to annotate transposable elements:
   ```bash
-  ./14_EDTA.sh
+  ./13_run_EDTA.sh
   ```
 
 - Classify long terminal repeats (LTRs) using TEsorter:
   ```bash
-  ./15_run_tesorter_LTR_classification.sh
+  ./14_a_run_tesorter_LTR_classification.sh
   ```
 
 - Visualize the LTR clades and families:
-  ```r
-  ./16_visualize_clades_and_fams.R
+  ```bash
+  ./14_b_visualize_clades_and_fams.R
   ```
-
+- Index assembled genome to obtain scaffold lengths, and process annotations in R:
+    ```bash
+  ./15_a_generate_faidx_samtools.sh
+  ./15_b_visualize_annotations.R
+  ```
+---
+### Step 5: TEs Age Estimation and Phylogenetic Analysis
+- Classify TEs specific to A. thaliana and Brassicaceae and analyze with SeqKit:
+  ```bash
+  16_classify_TE_TEsorter.sh
+  ```
+- Parse RepeatMasker output (from EDTA) to estimate divergence from consensus sequence:
+  ```bash
+  17_estimate_insertion_age.sh
+  18_plot_divergence.R
+  ```
+- Phylogenetic Analysis using SeqKit, Clustal Omega and FastTree:
+  ```bash
+  module add BioPerl/1.7.8-GCCcore-10.3.0
+  perl parseRM.pl -i $genome.mod.out -l 50,1 -v
+  ```
 ---
 
-### Step 5: Gene Annotation
-
-- Prepare input for MERQURY:
+### Step 6: Gene Annotation
+- Annotate genes using MAKER pipeline:
   ```bash
-  ./10_prepare_meryl_db.sh
+  20_a_create_maker_CTLfile.sh
+  20_b_run_maker.sh
+  20_c_prepare_maker_output.sh
+  ```
+- Validate completeness using BUSCO:
+  ```bash
+  21_get_longest_prot_transcripts.sh
+  22_run_BUSCO_transcriptome_proteins.sh
+  ```
+- Run BLAST to confirm protein homology:
+  ```bash
+  23_run_BLAST.sh
+  ```
+- Orthology based gene annotation quality control using OMArk:
+  ```bash
+  24_a_create_OMArk_env.sh
+  24_b_run_OMArk_QC.SH
   ```
 
-- Annotate using MERQURY:
-  - Flye assembly:
-    ```bash
-    ./11a_merqury_flye.sh
-    ```
-  - HiFiASM assembly:
-    ```bash
-    ./11b_merqury_hifiasm.sh
-    ```
-  - LJA assembly:
-    ```bash
-    ./11c_merqury_lja.sh
-    ```
+### Step 7: Comparative Genomics and Final Summary
 
 - Run GENESPACE for comparative genomics:
-  ```r
-  ./32_create_Genespace_folders.R
-  ./33_Genespace.R
-  ./34_run_Genespace.sh
+  ```bash
+  ./25_create_Genespace_folders.R
+  ./26_Genespace.R
+  ./27_run_Genespace.sh
   ```
 
 - Parse Orthofinder results:
-  ```r
-  ./35-19-parse_Orthofinder.R
+  ```bash
+  ./28-parse_Orthofinder.R
   ```
 
 ---
 
-### Step 6: Comparative Genomics and Final Summary
-
 - Contextualize OMA ortholog results:
-  ```python
+  ```bash
   Contextualize_OMA.ipynb
   ```
 
@@ -155,8 +187,4 @@ The analysis pipeline consists of the follwing steps:
 
 ---
 
-## Cluster Paths to Results
 
-Key outputs from this analysis are stored in the following cluster directories:
-
-PENDIENTE
