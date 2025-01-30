@@ -96,6 +96,9 @@ R scripts were executed locally.
   ```bash
   .12_run_mummer.sh  
   ```
+- Extract coords files for analysis of missalignments:
+  ```bash
+  ./12_b_mummer_for_coords.sh
 ---
 
 ### Step 4: Repetitive Element Annotation
