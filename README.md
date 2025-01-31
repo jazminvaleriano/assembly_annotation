@@ -135,8 +135,12 @@ R scripts were executed locally.
   ```
 - Phylogenetic Analysis using SeqKit, Clustal Omega and FastTree:
   ```bash
-  module add BioPerl/1.7.8-GCCcore-10.3.0
-  perl parseRM.pl -i $genome.mod.out -l 50,1 -v
+  19_a_phylogenetic_analysis.sh
+  ```
+- Optionally, use the following scripts to generate datasets to add features to the trees on iTol:
+  ```bash
+  19_b_add_colors_to_abundance.sh
+  19_c_extract_TE_abundance.sh
   ```
 ---
 
